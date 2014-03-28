@@ -105,13 +105,15 @@ Defines what type the given data represents.
 		self.set_type(mimetype)
 		if (self.part_type != Part.TYPE_MULTIPART and data == None): raise TypeError("Given data type is not supported")
 
+		payload = None
+
 		if (self.part_type == Part.TYPE_BINARY_ATTACHMENT or self.part_type == Part.TYPE_BINARY_INLINE):
 		#
 			if (str != _PY_BYTES_TYPE and type(data) == str): data = _PY_BYTES(data, "raw_unicode_escape")
 			if (type(data) != _PY_BYTES_TYPE): raise TypeError("Given data type is not supported")
 
 			self.add_header("Content-Disposition", "base64")
-			self.set_payload(b64encode(data))
+			payload = b64encode(data)
 		#
 		elif (
 			self.part_type == Part.TYPE_ATTACHMENT or
@@ -124,7 +126,13 @@ Defines what type the given data represents.
 
 			self.add_header("Content-Transfer-Encoding", "quoted-printable")
 			self.set_param("charset", "UTF-8", "Content-Type")
-			self.set_payload(encodestring(data))
+			payload = encodestring(data)
+		#
+
+		if (payload != None):
+		#
+			if (type(payload) != str): payload = _PY_STR(payload, "raw_unicode_escape")
+			self.set_payload(payload)
 		#
 
 		if (

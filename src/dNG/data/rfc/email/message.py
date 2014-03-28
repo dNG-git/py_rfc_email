@@ -23,12 +23,19 @@ http://www.direct-netware.de/redirect.py?licenses;mpl2
 ----------------------------------------------------------------------------
 NOTE_END //n"""
 
+from email.header import Header
+from email.utils import formataddr, parseaddr
+from time import time
+import re
+
+from dNG.data.rfc.basics import Basics
 from .part import Part
 
 class Message(object):
 #
 	"""
-An e-Mail consists of at least one message body part and optional attachments.
+An e-Mail consists of at least one message body part and optional
+attachments.
 
 :author:    direct Netware Group
 :copyright: (C) direct Netware Group - All rights reserved
@@ -60,26 +67,44 @@ List of attachments
 		"""
 List of message bodies added
 		"""
-		self.message = None
-		"""
-Underlying Python message instance
-		"""
 		self.body_related_list = [ ]
 		"""
 List of attachments
+		"""
+		self.recipients = [ ]
+		"""
+Recipient e-Mail addresses
+		"""
+		self.recipients_bcc = [ ]
+		"""
+Recipient bcc e-Mail addresses
+		"""
+		self.recipients_cc = [ ]
+		"""
+Recipient cc e-Mail addresses
+		"""
+		self.reply_to_address = ""
+		"""
+Reply-To e-Mail address
+		"""
+		self.sender_address = ""
+		"""
+From e-Mail address
+		"""
+		self.subject = ""
+		"""
+e-Mail subject
 		"""
 	#
 
 	def add_attachment(self, part):
 	#
 		"""
-Adds an e-Mail attachment to the message.
+Adds an e-Mail attachment.
 
-:param params: Query parameters as dict
-:param separator: Query parameter separator
+:param part: Message part
 
-:return: (mixed) Response data; Exception on error
-:since:  v0.1.00
+:since: v0.1.00
 		"""
 
 		if (
@@ -98,36 +123,49 @@ Adds an e-Mail attachment to the message.
 		if (part not in self.attachment_list): self.attachment_list.append(part)
 	#
 
-	def _add_attachments_to_multipart(self, element):
+	def _add_attachments_to_multipart(self, part):
 	#
 		"""
-Appends previously added attachments to the given element.
+Appends previously added attachments to the given message part.
 
-:return: (mixed) Matching body multipart element; None if unneeded
-:since:  v0.1.00
+:param part: Message part
+
+:since: v0.1.00
 		"""
 
-		for attachment_part in self.attachment_list: element.attach(attachment_part)
+		for attachment_part in self.attachment_list: part.attach(attachment_part)
+	#
+
+	def add_bcc(self, address):
+	#
+		"""
+Adds the bcc recipient address.
+
+:param address: ASCII e-Mail address
+
+:since: v0.1.00
+		"""
+
+		Message.validate_address(address)
+		if (address not in self.recipients_bcc): self.recipients_bcc.append(address)
 	#
 
 	def add_body(self, part):
 	#
 		"""
-Adds an e-Mail attachment related to the message body. Please note that RFC
-defines an increasing priority for each body part added. That means the last
-body should be the preferred representation.
+Adds an e-Mail message body. Please note that RFC defines an increasing
+priority for each body part added. That means the last body should be the
+preferred representation.
 
-:param params: Query parameters as dict
-:param separator: Query parameter separator
+:param part: Message part
 
-:return: (mixed) Response data; Exception on error
-:since:  v0.1.00
+:since: v0.1.00
 		"""
 
-		if ((not isinstance(part, Part)) or part.get_part_type() != Part.TYPE_MESSAGE_BODY):
-		#
-			raise TypeError("Only parts of type message body can be added as body elements")
-		#
+		if (
+			(not isinstance(part, Part)) or
+			part.get_part_type() != Part.TYPE_MESSAGE_BODY
+		): raise TypeError("Only parts of type message body can be added as body elements")
 
 		if (part not in self.body_list): self.body_list.append(part)
 	#
@@ -137,11 +175,9 @@ body should be the preferred representation.
 		"""
 Adds an e-Mail attachment related to the message body.
 
-:param params: Query parameters as dict
-:param separator: Query parameter separator
+:param part: Message part
 
-:return: (mixed) Response data; Exception on error
-:since:  v0.1.00
+:since: v0.1.00
 		"""
 
 		if (
@@ -160,16 +196,45 @@ Adds an e-Mail attachment related to the message body.
 		if (part not in self.body_related_list): self.body_related_list.append(part)
 	#
 
-	def _add_body_to_multipart(self, element):
+	def _add_body_to_multipart(self, part):
 	#
 		"""
-Appends the body to the given element.
+Appends the body to the given message part.
 
-:return: (mixed) Matching body multipart element; None if unneeded
-:since:  v0.1.00
+:param part: Message part
+
+:since: v0.1.00
 		"""
 
-		element.attach(self._get_body())
+		part.attach(self._get_body())
+	#
+
+	def add_cc(self, address):
+	#
+		"""
+Adds the cc recipient address.
+
+:param address: ASCII e-Mail address
+
+:since: v0.1.00
+		"""
+
+		Message.validate_address(address)
+		if (address not in self.recipients_cc): self.recipients_cc.append(address)
+	#
+
+	def add_to(self, address):
+	#
+		"""
+Adds the recipient address.
+
+:param address: ASCII e-Mail address
+
+:since: v0.1.00
+		"""
+
+		Message.validate_address(address)
+		if (address not in self.recipients): self.recipients.append(address)
 	#
 
 	def as_string(self):
@@ -183,6 +248,66 @@ Python.org: Return the entire formatted message as a string.
 
 		self._populate_message()
 		return self.message.as_string()
+	#
+
+	def is_from_set(self):
+	#
+		"""
+Returns true if the sender address has been set.
+
+:return: (bool) True if set
+:since: v0.1.00
+		"""
+
+		return (self.sender_address != "")
+	#
+
+	def is_recipient_defined(self):
+	#
+		"""
+Returns true if at least one recipient has been defined.
+
+:return: (bool) True if set
+:since: v0.1.00
+		"""
+
+		return (len(self.recipients + self.recipients_bcc + self.recipients_cc) > 0)
+	#
+
+	def is_reply_to_set(self):
+	#
+		"""
+Returns true if the "Reply-To" address has been set.
+
+:return: (bool) True if set
+:since: v0.1.00
+		"""
+
+		return (self.reply_to_address != "")
+	#
+
+	def is_subject_set(self):
+	#
+		"""
+Returns true if the e-Mail subject has been set.
+
+:return: (bool) True if set
+:since: v0.1.00
+		"""
+
+		return (self.subject != "")
+	#
+
+	def get_bcc(self):
+	#
+		"""
+Returns the "BCC" recipient address list.
+
+:return: (list) ASCII e-Mail addresses
+:since:  v0.1.00
+		"""
+
+		return self.recipients_bcc
 	#
 
 	def _get_body(self):
@@ -216,6 +341,54 @@ Returns the populated body element.
 		return _return
 	#
 
+	def get_cc(self):
+	#
+		"""
+Returns the "CC" recipient address list.
+
+:return: (list) ASCII e-Mail addresses
+:since:  v0.1.00
+		"""
+
+		return self.recipients_cc
+	#
+
+	def get_from(self):
+	#
+		"""
+Returns the sender address.
+
+:return: (list) ASCII e-Mail address
+:since: v0.1.00
+		"""
+
+		return self.sender_address
+	#
+
+	def get_subject(self):
+	#
+		"""
+Returns the e-Mail subject.
+
+:return: (str) e-Mail subject
+:since:  v0.1.00
+		"""
+
+		return self.subject
+	#
+
+	def get_to(self):
+	#
+		"""
+Returns the recipient address list.
+
+:return: (list) ASCII e-Mail addresses
+:since:  v0.1.00
+		"""
+
+		return self.recipients
+	#
+
 	def _populate_message(self):
 	#
 		"""
@@ -225,12 +398,157 @@ Python.org: Return the entire formatted message as a string.
 :since:  v0.1.00
 		"""
 
-		self.message = (Part(Part.TYPE_MULTIPART, "multipart/mixed") if (len(self.attachment_list) > 0) else None)
+		if (not self.is_subject_set()): raise ValueError("No subject defined for e-Mail")
 
-		if (self.message == None): self.message = self._get_body()
-		else: self._add_body_to_multipart(self.message)
+		if (len(self.attachment_list) > 0):
+		#
+			self.message = Part(Part.TYPE_MULTIPART, "multipart/mixed")
+			self._set_headers(self.message)
+			self._add_body_to_multipart(self.message)
+		#
+		else:
+		#
+			self.message = self._get_body()
+			self._set_headers(self.message)
+		#
 
 		self._add_attachments_to_multipart(self.message)
+	#
+
+	def set_bcc(self, address):
+	#
+		"""
+Sets the bcc recipient address.
+
+:param address: ASCII e-Mail address
+
+:since: v0.1.00
+		"""
+
+		self.recipients_bcc = [ ]
+		self.add_bcc(address)
+	#
+
+	def set_cc(self, address):
+	#
+		"""
+Sets the cc recipient address.
+
+:param address: ASCII e-Mail address
+
+:since: v0.1.00
+		"""
+
+		self.recipients_cc = [ ]
+		self.add_cc(address)
+	#
+
+	def set_from(self, address):
+	#
+		"""
+Sets the sender address.
+
+:param address: ASCII e-Mail address
+
+:since: v0.1.00
+		"""
+
+		Message.validate_address(address)
+		self.sender_address = address
+	#
+
+	def _set_headers(self, part):
+	#
+		"""
+Sets the e-Mail headers of the given message part.
+
+:param part: Message part
+
+:since: v0.1.00
+		"""
+
+		if (self.sender_address != ""): part['From'] = self.sender_address
+		part['To'] = (", ".join(self.recipients) if (len(self.recipients) > 0) else "undisclosed-recipients")
+		if (len(self.recipients_cc) > 0): part['cc'] = ", ".join(self.recipients_cc)
+		if (self.reply_to_address != ""): part['Reply-To'] = ", ".join(self.reply_to_address)
+
+		if ("Date" not in part): part['Date'] = Basics.get_rfc1123_datetime(time())
+
+		part['Subject'] = (
+			Header(self.subject, "utf-8")
+			if (re.search("[\\x00-\\x20\\x22\\x28\\x29\\x2c\\x2e\\x3a-\\x3c\\x3e\\x40\\x5b-\\x5d\\x7f-\\xff]", self.subject) != None) else
+			self.subject
+		)
+	#
+
+	def set_reply_to(self, address):
+	#
+		"""
+Sets the "Reply-To" address.
+
+:param address: ASCII e-Mail address
+
+:since: v0.1.00
+		"""
+
+		Message.validate_address(address)
+		self.reply_to_address = address
+	#
+
+	def set_subject(self, subject):
+	#
+		"""
+Sets the e-Mail subject.
+
+:param subject: e-Mail subject
+
+:since: v0.1.00
+		"""
+
+		self.subject = subject.strip()
+	#
+
+	def set_to(self, address):
+	#
+		"""
+Sets the recipient address.
+
+:param address: ASCII e-Mail address
+
+:since: v0.1.00
+		"""
+
+		self.recipients = [ ]
+		self.add_to(address)
+	#
+
+	@staticmethod
+	def format_address(value, email):
+	#
+		"""
+Formats the given text value and e-Mail address to an RFC compliant string.
+
+:param value: Text value
+:param email: E-Mail address
+
+:return: (str) RFC compliant string
+:since:  v0.1.00
+		"""
+
+		return formataddr(( value, email ))
+	#
+
+	@staticmethod
+	def validate_address(address):
+	#
+		"""
+Validates the e-Mail of the given address.
+		"""
+
+		address_data = parseaddr(address)
+
+		if (type(address_data[1]) != str): raise TypeError("Only ASCII e-Mail addresses are supported")
+		if (address_data[1] == ""): raise TypeError("Given e-Mail is not valid")
 	#
 #
 
