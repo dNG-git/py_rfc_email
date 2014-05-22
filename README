@@ -1,9 +1,9 @@
 ----------------------------------------------------------------------------
-RFC e-Mail for Python
+RFC e-mail for Python
 ----------------------------------------------------------------------------
 
-RFC e-Mail extends the Python integrated "email" package with an easy to use
-abstraction layer to construct e-Mails with alternative bodies and
+RFC e-mail extends the Python integrated "email" package with an easy to use
+abstraction layer to construct e-mails with alternative bodies and
 attachments.
 
 ----------------------------------------------------------------------------

@@ -2,7 +2,7 @@
 ##j## BOF
 
 """
-RFC e-Mail for Python
+RFC e-mail for Python
 """
 """n// NOTE
 ----------------------------------------------------------------------------
@@ -19,6 +19,8 @@ http://www.direct-netware.de/redirect.py?licenses;mpl2
 #echo(__FILEPATH__)#
 ----------------------------------------------------------------------------
 NOTE_END //n"""
+
+# pylint: disable=invalid-name
 
 from base64 import b64encode
 from email.message import Message
@@ -42,7 +44,7 @@ except NameError:
 class Part(Message):
 #
 	"""
-This is an e-Mail mime part that can be attached to a message.
+This is an e-mail mime part that can be attached to a message.
 
 :author:    direct Netware Group
 :copyright: (C) direct Netware Group - All rights reserved
@@ -54,27 +56,27 @@ This is an e-Mail mime part that can be attached to a message.
 
 	TYPE_ATTACHMENT = 1
 	"""
-e-Mail attachment
+e-mail attachment
 	"""
 	TYPE_BINARY_ATTACHMENT = 2
 	"""
-Binary e-Mail attachment
+Binary e-mail attachment
 	"""
 	TYPE_BINARY_INLINE = 4
 	"""
-Binary e-Mail inline part
+Binary e-mail inline part
 	"""
 	TYPE_INLINE = 3
 	"""
-e-Mail inline part
+e-mail inline part
 	"""
 	TYPE_MESSAGE_BODY = 5
 	"""
-e-Mail message body
+e-mail message body
 	"""
 	TYPE_MULTIPART = 6
 	"""
-e-Mail multipart body
+e-mail multipart body
 	"""
 
 	def __init__(self, _type, mimetype, data = None, filename = None):
@@ -115,11 +117,10 @@ Defines what type the given data represents.
 			self.add_header("Content-Disposition", "base64")
 			payload = b64encode(data)
 		#
-		elif (
-			self.part_type == Part.TYPE_ATTACHMENT or
-			self.part_type == Part.TYPE_INLINE or
-			self.part_type == Part.TYPE_MESSAGE_BODY
-		):
+		elif (self.part_type == Part.TYPE_ATTACHMENT
+		      or self.part_type == Part.TYPE_INLINE
+		      or self.part_type == Part.TYPE_MESSAGE_BODY
+		     ):
 		#
 			if (str != _PY_BYTES_TYPE and type(data) == str): data = _PY_BYTES(data, "utf-8")
 			if (type(data) != _PY_BYTES_TYPE): raise TypeError("Given data type is not supported")
@@ -135,12 +136,11 @@ Defines what type the given data represents.
 			self.set_payload(payload)
 		#
 
-		if (
-			self.part_type == Part.TYPE_ATTACHMENT or
-			self.part_type == Part.TYPE_BINARY_ATTACHMENT or
-			self.part_type == Part.TYPE_BINARY_INLINE or
-			self.part_type == Part.TYPE_INLINE
-		):
+		if (self.part_type == Part.TYPE_ATTACHMENT
+		    or self.part_type == Part.TYPE_BINARY_ATTACHMENT
+		    or self.part_type == Part.TYPE_BINARY_INLINE
+		    or self.part_type == Part.TYPE_INLINE
+		   ):
 		#
 			if (str != _PY_UNICODE_TYPE and type(filename) == _PY_UNICODE_TYPE): filename = _PY_STR(filename, "utf-8")
 			if (type(filename) != str): raise TypeError("Given filename type is not supported")
@@ -148,11 +148,10 @@ Defines what type the given data represents.
 			self.content_id = "cid{0:d}@mail".format(id(self))
 			self.add_header("Content-ID", "<{0}>".format(self.content_id))
 
-			disposition_type = (
-				"attachment"
-				if (self.part_type == Part.TYPE_ATTACHMENT or self.part_type == Part.TYPE_BINARY_ATTACHMENT) else
-				"inline"
-			)
+			disposition_type = ("attachment"
+			                    if (self.part_type == Part.TYPE_ATTACHMENT or self.part_type == Part.TYPE_BINARY_ATTACHMENT) else
+			                    "inline"
+			                   )
 
 			self.add_header("Content-Disposition", disposition_type, filename = filename)
 		#
