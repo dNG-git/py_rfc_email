@@ -469,7 +469,7 @@ Sets the e-mail headers of the given message part.
 		if (len(self.recipients_cc) > 0): part['cc'] = ", ".join(self.recipients_cc)
 		if (self.reply_to_address != ""): part['Reply-To'] = ", ".join(self.reply_to_address)
 
-		if ("Date" not in part): part['Date'] = Basics.get_rfc1123_datetime(time())
+		if ("Date" not in part): part['Date'] = Basics.get_rfc5322_datetime(time())
 
 		part['Subject'] = (Header(self.subject, "utf-8")
 		                   if (re.search("[\\x00-\\x20\\x22\\x28\\x29\\x2c\\x2e\\x3a-\\x3c\\x3e\\x40\\x5b-\\x5d\\x7f-\\xff]", self.subject) != None) else
