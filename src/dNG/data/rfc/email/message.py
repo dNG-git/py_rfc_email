@@ -3,11 +3,7 @@
 
 """
 RFC e-mail for Python
-"""
-"""n// NOTE
-----------------------------------------------------------------------------
-direct PAS
-Python Application Services
+An abstracted programming interface to generate e-mails
 ----------------------------------------------------------------------------
 (C) direct Netware Group - All rights reserved
 http://www.direct-netware.de/redirect.py?py;rfc_email
@@ -20,13 +16,23 @@ http://www.direct-netware.de/redirect.py?licenses;mpl2
 ----------------------------------------------------------------------------
 #echo(rfcEMailVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 from email.header import Header
 from email.utils import formataddr, parseaddr
 from time import time
 import re
+
+try:
+#
+	_PY_STR = unicode.encode
+	_PY_UNICODE_TYPE = unicode
+#
+except NameError:
+#
+	_PY_STR = bytes.decode
+	_PY_UNICODE_TYPE = str
+#
 
 from dNG.data.rfc.basics import Basics
 from .part import Part
@@ -68,6 +74,10 @@ List of message bodies added
 		self.body_related_list = [ ]
 		"""
 List of attachments
+		"""
+		self.headers = { }
+		"""
+Dictionary of additional e-mail headers
 		"""
 		self.message = None
 		"""
@@ -232,6 +242,31 @@ Adds the recipient address.
 
 		Message.validate_address(address)
 		if (address not in self.recipients): self.recipients.append(address)
+	#
+
+	def _apply_headers(self, part):
+	#
+		"""
+Sets the e-mail headers of the given message part.
+
+:param part: Message part
+
+:since: v0.1.00
+		"""
+
+		if (self.sender_address != ""): part['From'] = self.sender_address
+		part['To'] = (", ".join(self.recipients) if (len(self.recipients) > 0) else "undisclosed-recipients")
+		if (len(self.recipients_cc) > 0): part['cc'] = ", ".join(self.recipients_cc)
+		if (self.reply_to_address != ""): part['Reply-To'] = ", ".join(self.reply_to_address)
+
+		if ("Date" not in part): part['Date'] = Basics.get_rfc5322_datetime(time())
+
+		part['Subject'] = (Header(self.subject, "utf-8")
+		                   if (re.search("[\\x00-\\x20\\x22\\x28\\x29\\x2c\\x2e\\x3a-\\x3c\\x3e\\x40\\x5b-\\x5d\\x7f-\\xff]", self.subject) != None) else
+		                   self.subject
+		                  )
+
+		for name in self.headers: part[name] = self.headers[name]
 	#
 
 	def as_string(self):
@@ -400,13 +435,13 @@ Python.org: Return the entire formatted message as a string.
 		if (len(self.attachment_list) > 0):
 		#
 			self.message = Part(Part.TYPE_MULTIPART, "multipart/mixed")
-			self._set_headers(self.message)
+			self._apply_headers(self.message)
 			self._add_body_to_multipart(self.message)
 		#
 		else:
 		#
 			self.message = self._get_body()
-			self._set_headers(self.message)
+			self._apply_headers(self.message)
 		#
 
 		self._add_attachments_to_multipart(self.message)
@@ -454,27 +489,24 @@ Sets the sender address.
 		self.sender_address = address
 	#
 
-	def _set_headers(self, part):
+	def set_header(self, name, value):
 	#
 		"""
-Sets the e-mail headers of the given message part.
+Sets a header.
 
-:param part: Message part
+:param name: Header name
+:param value: Header value as string
 
-:since: v0.1.00
+:since: v0.1.01
 		"""
 
-		if (self.sender_address != ""): part['From'] = self.sender_address
-		part['To'] = (", ".join(self.recipients) if (len(self.recipients) > 0) else "undisclosed-recipients")
-		if (len(self.recipients_cc) > 0): part['cc'] = ", ".join(self.recipients_cc)
-		if (self.reply_to_address != ""): part['Reply-To'] = ", ".join(self.reply_to_address)
+		name = name.upper()
 
-		if ("Date" not in part): part['Date'] = Basics.get_rfc5322_datetime(time())
-
-		part['Subject'] = (Header(self.subject, "utf-8")
-		                   if (re.search("[\\x00-\\x20\\x22\\x28\\x29\\x2c\\x2e\\x3a-\\x3c\\x3e\\x40\\x5b-\\x5d\\x7f-\\xff]", self.subject) != None) else
-		                   self.subject
-		                  )
+		if (value == None):
+		#
+			if (name in self.headers): del(self.headers[name])
+		#
+		elif (name not in self.headers): self.headers[name] = value
 	#
 
 	def set_reply_to(self, address):
@@ -541,9 +573,11 @@ Formats the given text value and e-mail address to an RFC compliant string.
 Validates the e-mail of the given address.
 		"""
 
-		address_data = parseaddr(address)
+		# global: _PY_STR, _PY_UNICODE_TYPE
 
-		if (type(address_data[1]) != str): raise TypeError("Only ASCII e-mail addresses are supported")
+		address_data = parseaddr(address)
+		if (str != _PY_UNICODE_TYPE and type(address_data[1]) == _PY_UNICODE_TYPE): address_data[1] = _PY_STR(address_data[1], "utf-8")
+
 		if (address_data[1] == ""): raise TypeError("Given e-mail is not valid")
 	#
 #

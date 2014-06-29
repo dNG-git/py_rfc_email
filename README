@@ -1,5 +1,6 @@
 ----------------------------------------------------------------------------
 RFC e-mail for Python
+An abstracted programming interface to generate e-mails
 ----------------------------------------------------------------------------
 
 RFC e-mail extends the Python integrated "email" package with an easy to use

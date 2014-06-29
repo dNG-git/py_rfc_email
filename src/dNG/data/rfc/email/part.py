@@ -3,8 +3,7 @@
 
 """
 RFC e-mail for Python
-"""
-"""n// NOTE
+An abstracted programming interface to generate e-mails
 ----------------------------------------------------------------------------
 (C) direct Netware Group - All rights reserved
 http://www.direct-netware.de/redirect.py?py;rfc_email
@@ -17,8 +16,7 @@ http://www.direct-netware.de/redirect.py?licenses;mpl2
 ----------------------------------------------------------------------------
 #echo(rfcEMailVersion)#
 #echo(__FILEPATH__)#
-----------------------------------------------------------------------------
-NOTE_END //n"""
+"""
 
 # pylint: disable=invalid-name
 
