@@ -6,13 +6,13 @@ RFC e-mail for Python
 An abstracted programming interface to generate e-mails
 ----------------------------------------------------------------------------
 (C) direct Netware Group - All rights reserved
-http://www.direct-netware.de/redirect.py?py;rfc_email
+https://www.direct-netware.de/redirect?py;rfc_email
 
 This Source Code Form is subject to the terms of the Mozilla Public License,
 v. 2.0. If a copy of the MPL was not distributed with this file, You can
 obtain one at http://mozilla.org/MPL/2.0/.
 ----------------------------------------------------------------------------
-http://www.direct-netware.de/redirect.py?licenses;mpl2
+https://www.direct-netware.de/redirect?licenses;mpl2
 ----------------------------------------------------------------------------
 #echo(rfcEMailVersion)#
 #echo(__FILEPATH__)#
@@ -47,7 +47,7 @@ attachments.
 :copyright: (C) direct Netware Group - All rights reserved
 :package:   rfc_email.py
 :since:     v0.1.00
-:license:   http://www.direct-netware.de/redirect.py?licenses;mpl2
+:license:   https://www.direct-netware.de/redirect?licenses;mpl2
             Mozilla Public License, v. 2.0
 	"""
 
