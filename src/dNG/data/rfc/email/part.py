@@ -112,7 +112,7 @@ Defines what type the given data represents.
 			if (str != _PY_BYTES_TYPE and type(data) == str): data = _PY_BYTES(data, "raw_unicode_escape")
 			if (type(data) != _PY_BYTES_TYPE): raise TypeError("Given data type is not supported")
 
-			self.add_header("Content-Disposition", "base64")
+			self.add_header("Content-Transfer-Encoding", "base64")
 			payload = b64encode(data)
 		#
 		elif (self.part_type == Part.TYPE_ATTACHMENT
