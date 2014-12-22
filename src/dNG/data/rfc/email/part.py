@@ -103,7 +103,7 @@ Defines what type the given data represents.
 		"""
 
 		self.set_type(mimetype)
-		if (self.part_type != Part.TYPE_MULTIPART and data == None): raise TypeError("Given data type is not supported")
+		if (self.part_type != Part.TYPE_MULTIPART and data is None): raise TypeError("Given data type is not supported")
 
 		payload = None
 
@@ -128,7 +128,7 @@ Defines what type the given data represents.
 			payload = encodestring(data)
 		#
 
-		if (payload != None):
+		if (payload is not None):
 		#
 			if (type(payload) != str): payload = _PY_STR(payload, "raw_unicode_escape")
 			self.set_payload(payload)

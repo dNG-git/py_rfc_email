@@ -261,9 +261,9 @@ Sets the e-mail headers of the given message part.
 
 		if ("Date" not in part): part['Date'] = Basics.get_rfc5322_datetime(time())
 
-		part['Subject'] = (Header(self.subject, "utf-8")
-		                   if (re.search("[\\x00-\\x20\\x22\\x28\\x29\\x2c\\x2e\\x3a-\\x3c\\x3e\\x40\\x5b-\\x5d\\x7f-\\xff]", self.subject) != None) else
-		                   self.subject
+		part['Subject'] = (self.subject
+		                   if (re.search("[\\x00-\\x20\\x22\\x28\\x29\\x2c\\x2e\\x3a-\\x3c\\x3e\\x40\\x5b-\\x5d\\x7f-\\xff]", self.subject) is None) else
+		                   Header(self.subject, "utf-8")
 		                  )
 
 		for name in self.headers: part[name] = self.headers[name]
@@ -502,7 +502,7 @@ Sets a header.
 
 		name = name.upper()
 
-		if (value == None):
+		if (value is None):
 		#
 			if (name in self.headers): del(self.headers[name])
 		#
