@@ -109,7 +109,7 @@ Defines what type the given data represents.
 
 		if (self.part_type == Part.TYPE_BINARY_ATTACHMENT or self.part_type == Part.TYPE_BINARY_INLINE):
 		#
-			if (str != _PY_BYTES_TYPE and type(data) == str): data = _PY_BYTES(data, "raw_unicode_escape")
+			if (str is not _PY_BYTES_TYPE and type(data) is str): data = _PY_BYTES(data, "raw_unicode_escape")
 			if (type(data) != _PY_BYTES_TYPE): raise TypeError("Given data type is not supported")
 
 			self.add_header("Content-Transfer-Encoding", "base64")
@@ -120,8 +120,8 @@ Defines what type the given data represents.
 		      or self.part_type == Part.TYPE_MESSAGE_BODY
 		     ):
 		#
-			if (str != _PY_BYTES_TYPE and type(data) == str): data = _PY_BYTES(data, "utf-8")
-			if (type(data) != _PY_BYTES_TYPE): raise TypeError("Given data type is not supported")
+			if (str is not _PY_BYTES_TYPE and type(data) is str): data = _PY_BYTES(data, "utf-8")
+			if (type(data) is not _PY_BYTES_TYPE): raise TypeError("Given data type is not supported")
 
 			self.add_header("Content-Transfer-Encoding", "quoted-printable")
 			self.set_param("charset", "UTF-8", "Content-Type")
@@ -130,7 +130,7 @@ Defines what type the given data represents.
 
 		if (payload is not None):
 		#
-			if (type(payload) != str): payload = _PY_STR(payload, "raw_unicode_escape")
+			if (type(payload) is not str): payload = _PY_STR(payload, "raw_unicode_escape")
 			self.set_payload(payload)
 		#
 
@@ -140,8 +140,8 @@ Defines what type the given data represents.
 		    or self.part_type == Part.TYPE_INLINE
 		   ):
 		#
-			if (str != _PY_UNICODE_TYPE and type(filename) == _PY_UNICODE_TYPE): filename = _PY_STR(filename, "utf-8")
-			if (type(filename) != str): raise TypeError("Given filename type is not supported")
+			if (str != _PY_UNICODE_TYPE and type(filename) is _PY_UNICODE_TYPE): filename = _PY_STR(filename, "utf-8")
+			if (type(filename) is not str): raise TypeError("Given filename type is not supported")
 
 			self.content_id = "cid{0:d}@mail".format(id(self))
 			self.add_header("Content-ID", "<{0}>".format(self.content_id))

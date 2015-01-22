@@ -576,7 +576,7 @@ Validates the e-mail of the given address.
 		# global: _PY_STR, _PY_UNICODE_TYPE
 
 		address_data = parseaddr(address)
-		if (str != _PY_UNICODE_TYPE and type(address_data[1]) == _PY_UNICODE_TYPE): address_data[1] = _PY_STR(address_data[1], "utf-8")
+		if (str is not _PY_UNICODE_TYPE and type(address_data[1]) is _PY_UNICODE_TYPE): address_data[1] = _PY_STR(address_data[1], "utf-8")
 
 		if (address_data[1] == ""): raise TypeError("Given e-mail is not valid")
 	#
