@@ -77,7 +77,7 @@ e-mail message body
 e-mail multipart body
 	"""
 
-	def __init__(self, _type, mimetype, data = None, filename = None):
+	def __init__(self, _type, mimetype, data = None, file_name = None):
 	#
 		"""
 Constructor __init__(Part)
@@ -140,8 +140,8 @@ Defines what type the given data represents.
 		    or self.part_type == Part.TYPE_INLINE
 		   ):
 		#
-			if (str != _PY_UNICODE_TYPE and type(filename) is _PY_UNICODE_TYPE): filename = _PY_STR(filename, "utf-8")
-			if (type(filename) is not str): raise TypeError("Given filename type is not supported")
+			if (str != _PY_UNICODE_TYPE and type(file_name) is _PY_UNICODE_TYPE): file_name = _PY_STR(file_name, "utf-8")
+			if (type(file_name) is not str): raise TypeError("Given file name type is not supported")
 
 			self.content_id = "cid{0:d}@mail".format(id(self))
 			self.add_header("Content-ID", "<{0}>".format(self.content_id))
@@ -151,7 +151,7 @@ Defines what type the given data represents.
 			                    "inline"
 			                   )
 
-			self.add_header("Content-Disposition", disposition_type, filename = filename)
+			self.add_header("Content-Disposition", disposition_type, filename = file_name)
 		#
 	#
 

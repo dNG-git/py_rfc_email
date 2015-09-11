@@ -32,7 +32,7 @@ class TestRfcEMailPart(unittest.TestCase):
 Test basic methods for an ASCII attachment.
 		"""
 
-		part = Part(Part.TYPE_ATTACHMENT, "text/plain", "Hello world", filename = "hello_world.txt")
+		part = Part(Part.TYPE_ATTACHMENT, "text/plain", "Hello world", file_name = "hello_world.txt")
 		self.assertEqual(Part.TYPE_ATTACHMENT, part.get_part_type())
 
 		_exception = None
@@ -44,7 +44,7 @@ Test basic methods for an ASCII attachment.
 
 		# This test uses German special characters
 
-		part = Part(Part.TYPE_ATTACHMENT, "text/plain", "Hallo Welt, schön das du dich drehst.", filename = "hallo_welt_öäü.txt")
+		part = Part(Part.TYPE_ATTACHMENT, "text/plain", "Hallo Welt, schön das du dich drehst.", file_name = "hallo_welt_öäü.txt")
 		self.assertEqual("Hallo Welt, sch=C3=B6n das du dich drehst.", part.get_payload())
 	#
 
@@ -54,7 +54,7 @@ Test basic methods for an ASCII attachment.
 Test basic methods for an ASCII inline part.
 		"""
 
-		part = Part(Part.TYPE_INLINE, "text/plain", "Hello world", filename = "hello_world.txt")
+		part = Part(Part.TYPE_INLINE, "text/plain", "Hello world", file_name = "hello_world.txt")
 		self.assertEqual(Part.TYPE_INLINE, part.get_part_type())
 
 		_exception = None
