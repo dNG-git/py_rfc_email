@@ -262,7 +262,7 @@ Sets the e-mail headers of the given message part.
 		if ("Date" not in part): part['Date'] = Basics.get_rfc5322_datetime(time())
 
 		part['Subject'] = (self.subject
-		                   if (re.search("[\\x00-\\x20\\x22\\x28\\x29\\x2c\\x2e\\x3a-\\x3c\\x3e\\x40\\x5b-\\x5d\\x7f-\\xff]", self.subject) is None) else
+		                   if (re.search("[\\x00-\\x19\\x22\\x28\\x29\\x2c\\x2e\\x3a-\\x3c\\x3e\\x40\\x5b-\\x5d\\x7f-\\xff]", self.subject) is None) else
 		                   Header(self.subject, "utf-8")
 		                  )
 
