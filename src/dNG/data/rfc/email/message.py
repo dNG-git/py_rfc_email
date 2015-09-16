@@ -272,7 +272,7 @@ Sets the e-mail headers of the given message part.
 	def as_string(self):
 	#
 		"""
-Python.org: Return the entire formatted message as a string.
+python.org: Return the entire formatted message as a string.
 
 :return: (str)
 :since:  v0.1.00
@@ -424,7 +424,7 @@ Returns the recipient address list.
 	def _populate_message(self):
 	#
 		"""
-Python.org: Return the entire formatted message as a string.
+python.org: Return the entire formatted message as a string.
 
 :return: (str)
 :since:  v0.1.00
