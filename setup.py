@@ -48,10 +48,12 @@ with TemporaryDirectory(dir = ".") as build_directory:
 	      version = get_version(),
 	      description = "An abstracted programming interface to generate e-mails",
 	      long_description = """RFC e-mail extends the Python integrated "email" package with an easy to use abstraction layer to construct e-mails with alternative bodies and attachments.""",
-	      author = "direct Netware Group",
+	      author = "direct Netware Group et al.",
 	      author_email = "web@direct-netware.de",
 	      license = "MPL2",
 	      url = "https://www.direct-netware.de/redirect?py;rfc_email",
+
+	      platforms = [ "any" ],
 
 	      package_dir = { "": _build_path },
 	      packages = [ "dNG" ],
