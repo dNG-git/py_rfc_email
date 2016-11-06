@@ -5,4 +5,5 @@ nbproject
 /_extras
 /build
 /make*.py*
-/rfc_email.*
+/py_rfc_email.*
+/rfc_email.py.*
