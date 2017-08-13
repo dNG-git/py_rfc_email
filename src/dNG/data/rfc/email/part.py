@@ -87,29 +87,29 @@ Constructor __init__(Part)
 
         Message.__init__(self)
 
-        self.content_id = None
+        self._content_id = None
         """
 Defines what type the given data represents.
         """
-        self.part_type = _type
+        self._part_type = _type
         """
 Defines what type the given data represents.
         """
 
         self.set_type(mimetype)
-        if (self.part_type != Part.TYPE_MULTIPART and data is None): raise TypeError("Given data type is not supported")
+        if (self._part_type != Part.TYPE_MULTIPART and data is None): raise TypeError("Given data type is not supported")
 
         payload = None
 
-        if (self.part_type == Part.TYPE_BINARY_ATTACHMENT or self.part_type == Part.TYPE_BINARY_INLINE):
+        if (self._part_type == Part.TYPE_BINARY_ATTACHMENT or self._part_type == Part.TYPE_BINARY_INLINE):
             if (str is not _PY_BYTES_TYPE and type(data) is str): data = _PY_BYTES(data, "raw_unicode_escape")
             if (type(data) != _PY_BYTES_TYPE): raise TypeError("Given data type is not supported")
 
             self.add_header("Content-Transfer-Encoding", "base64")
             payload = b64encode(data)
-        elif (self.part_type == Part.TYPE_ATTACHMENT
-              or self.part_type == Part.TYPE_INLINE
-              or self.part_type == Part.TYPE_MESSAGE_BODY
+        elif (self._part_type == Part.TYPE_ATTACHMENT
+              or self._part_type == Part.TYPE_INLINE
+              or self._part_type == Part.TYPE_MESSAGE_BODY
              ):
             if (str is not _PY_BYTES_TYPE and type(data) is str): data = _PY_BYTES(data, "utf-8")
             if (type(data) is not _PY_BYTES_TYPE): raise TypeError("Given data type is not supported")
@@ -124,19 +124,19 @@ Defines what type the given data represents.
             self.set_payload(payload)
         #
 
-        if (self.part_type == Part.TYPE_ATTACHMENT
-            or self.part_type == Part.TYPE_BINARY_ATTACHMENT
-            or self.part_type == Part.TYPE_BINARY_INLINE
-            or self.part_type == Part.TYPE_INLINE
+        if (self._part_type == Part.TYPE_ATTACHMENT
+            or self._part_type == Part.TYPE_BINARY_ATTACHMENT
+            or self._part_type == Part.TYPE_BINARY_INLINE
+            or self._part_type == Part.TYPE_INLINE
            ):
             if (str != _PY_UNICODE_TYPE and type(file_name) is _PY_UNICODE_TYPE): file_name = _PY_STR(file_name, "utf-8")
             if (type(file_name) is not str): raise TypeError("Given file name type is not supported")
 
-            self.content_id = "cid{0:d}@mail".format(id(self))
-            self.add_header("Content-ID", "<{0}>".format(self.content_id))
+            self._content_id = "cid{0:d}@mail".format(id(self))
+            self.add_header("Content-ID", "<{0}>".format(self._content_id))
 
             disposition_type = ("attachment"
-                                if (self.part_type == Part.TYPE_ATTACHMENT or self.part_type == Part.TYPE_BINARY_ATTACHMENT) else
+                                if (self._part_type == Part.TYPE_ATTACHMENT or self._part_type == Part.TYPE_BINARY_ATTACHMENT) else
                                 "inline"
                                )
 
@@ -144,25 +144,27 @@ Defines what type the given data represents.
         #
     #
 
-    def get_content_id(self):
+    @property
+    def content_id(self):
         """
 Return the part type.
 
 :return: (int) Part type
-:since:  v0.1.00
+:since:  v1.0.0
         """
 
-        return self.content_id
+        return self._content_id
     #
 
-    def get_part_type(self):
+    @property
+    def type(self):
         """
 Return the part type.
 
 :return: (int) Part type
-:since:  v0.1.00
+:since:  v1.0.0
         """
 
-        return self.part_type
+        return self._part_type
     #
 #

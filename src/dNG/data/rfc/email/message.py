@@ -97,10 +97,240 @@ Reply-To e-mail address
         """
 From e-mail address
         """
-        self.subject = ""
+        self._subject = ""
         """
 e-mail subject
         """
+    #
+
+    @property
+    def bcc(self):
+        """
+Returns the "BCC" recipient address list.
+
+:return: (list) ASCII e-mail addresses
+:since:  v1.0.0
+        """
+
+        return self.recipients_bcc
+    #
+
+    @bcc.setter
+    def bcc(self, address):
+        """
+Sets the bcc recipient address.
+
+:param address: ASCII e-mail address
+
+:since: v1.0.0
+        """
+
+        self.recipients_bcc = [ ]
+        self.add_bcc(address)
+    #
+
+    @property
+    def _body(self):
+        """
+Returns the populated body element.
+
+:return: (mixed) Matching body multipart element; None if unneeded
+:since:  v1.0.0
+        """
+
+        if (len(self.body_list) < 1): raise ValueError("No body has been defined")
+
+        # First handle alternative representations of the body
+        if (len(self.body_list) > 1):
+            body_root = Part(Part.TYPE_MULTIPART, "multipart/alternative")
+            for body_part in self.body_list: body_root.attach(body_part)
+        else: body_root = self.body_list[0]
+
+        # If related attachments are defined we will add them now
+        if (len(self.body_related_list) > 0):
+            _return = Part(Part.TYPE_MULTIPART, "multipart/related")
+            _return.attach(body_root)
+            for related_part in self.body_related_list: _return.attach(related_part)
+        else: _return = body_root
+
+        return _return
+    #
+
+    @property
+    def cc(self):
+        """
+Returns the "CC" recipient address list.
+
+:return: (list) ASCII e-mail addresses
+:since:  v1.0.0
+        """
+
+        return self.recipients_cc
+    #
+
+    @cc.setter
+    def cc(self, address):
+        """
+Sets the cc recipient address.
+
+:param address: ASCII e-mail address
+
+:since: v1.0.0
+        """
+
+        self.recipients_cc = [ ]
+        self.add_cc(address)
+    #
+
+    @property
+    def is_sender_set(self):
+        """
+Returns true if the sender address has been set.
+
+:return: (bool) True if set
+:since:  v1.0.0
+        """
+
+        return (self.sender_address != "")
+    #
+
+    @property
+    def is_recipient_set(self):
+        """
+Returns true if at least one recipient has been defined.
+
+:return: (bool) True if set
+:since:  v1.0.0
+        """
+
+        return (len(self.recipients + self.recipients_bcc + self.recipients_cc) > 0)
+    #
+
+    @property
+    def is_reply_to_set(self):
+        """
+Returns true if the "Reply-To" address has been set.
+
+:return: (bool) True if set
+:since:  v1.0.0
+        """
+
+        return (self.reply_to_address != "")
+    #
+
+    @property
+    def is_subject_set(self):
+        """
+Returns true if the e-mail subject has been set.
+
+:return: (bool) True if set
+:since:  v1.0.0
+        """
+
+        return (self._subject != "")
+    #
+
+    @property
+    def reply_to(self):
+        """
+Returns the "Reply-To" address.
+
+:return: (str) ASCII e-mail address
+:since:  v1.0.0
+        """
+
+        return self.reply_to_address
+    #
+
+    @reply_to.setter
+    def reply_to(self, address):
+        """
+Sets the "Reply-To" address.
+
+:param address: ASCII e-mail address
+
+:since: v1.0.0
+        """
+
+        Message.validate_address(address)
+        self.reply_to_address = address
+    #
+
+    @property
+    def sender(self):
+        """
+Returns the sender address.
+
+:return: (list) ASCII e-mail address
+:since: v1.0.0
+        """
+
+        return self.sender_address
+    #
+
+    @sender.setter
+    def sender(self, address):
+        """
+Sets the sender address.
+
+:param address: ASCII e-mail address
+
+:since: v1.0.0
+        """
+
+        Message.validate_address(address)
+        self.sender_address = address
+    #
+
+    @property
+    def subject(self):
+        """
+Returns the e-mail subject.
+
+:return: (str) e-mail subject
+:since:  v1.0.0
+        """
+
+        return self._subject
+    #
+
+    @subject.setter
+    def subject(self, subject):
+        """
+Sets the e-mail subject.
+
+:param subject: e-mail subject
+
+:since: v1.0.0
+        """
+
+        self._subject = subject.strip()
+    #
+
+    @property
+    def to(self):
+        """
+Returns the recipient address list.
+
+:return: (list) ASCII e-mail addresses
+:since:  v1.0.0
+        """
+
+        return self.recipients
+    #
+
+    @to.setter
+    def to(self, address):
+        """
+Sets the recipient address.
+
+:param address: ASCII e-mail address
+
+:since: v1.0.0
+        """
+
+        self.recipients = [ ]
+        self.add_to(address)
     #
 
     def add_attachment(self, part):
@@ -113,10 +343,10 @@ Adds an e-mail attachment.
         """
 
         if ((not isinstance(part, Part))
-            or (part.get_part_type() != Part.TYPE_ATTACHMENT
-                and part.get_part_type() != Part.TYPE_BINARY_ATTACHMENT
-                and part.get_part_type() != Part.TYPE_BINARY_INLINE
-                and part.get_part_type() != Part.TYPE_INLINE
+            or (part.type != Part.TYPE_ATTACHMENT
+                and part.type != Part.TYPE_BINARY_ATTACHMENT
+                and part.type != Part.TYPE_BINARY_INLINE
+                and part.type != Part.TYPE_INLINE
                )
            ):
             raise TypeError("Only parts of type attachment can be added as attachment elements")
@@ -161,7 +391,7 @@ preferred representation.
         """
 
         if ((not isinstance(part, Part))
-            or part.get_part_type() != Part.TYPE_MESSAGE_BODY
+            or part.type != Part.TYPE_MESSAGE_BODY
            ): raise TypeError("Only parts of type message body can be added as body elements")
 
         if (part not in self.body_list): self.body_list.append(part)
@@ -177,10 +407,10 @@ Adds an e-mail attachment related to the message body.
         """
 
         if ((not isinstance(part, Part))
-            or (part.get_part_type() != Part.TYPE_ATTACHMENT
-                and part.get_part_type() != Part.TYPE_BINARY_ATTACHMENT
-                and part.get_part_type() != Part.TYPE_BINARY_INLINE
-                and part.get_part_type() != Part.TYPE_INLINE
+            or (part.type != Part.TYPE_ATTACHMENT
+                and part.type != Part.TYPE_BINARY_ATTACHMENT
+                and part.type != Part.TYPE_BINARY_INLINE
+                and part.type != Part.TYPE_INLINE
                )
            ):
             raise TypeError("Only parts of type attachment can be added as body related elements")
@@ -197,7 +427,7 @@ Appends the body to the given message part.
 :since: v0.1.00
         """
 
-        part.attach(self._get_body())
+        part.attach(self._body)
     #
 
     def add_cc(self, address):
@@ -242,9 +472,9 @@ Sets the e-mail headers of the given message part.
 
         if ("Date" not in part): part['Date'] = Basics.get_rfc5322_datetime(time())
 
-        part['Subject'] = (self.subject
-                           if (re.search("[\\x00-\\x19\\x22\\x28\\x29\\x2c\\x2e\\x3a-\\x3c\\x3e\\x40\\x5b-\\x5d\\x7f-\\xff]", self.subject) is None) else
-                           Header(self.subject, "utf-8")
+        part['Subject'] = (self._subject
+                           if (re.search("[\\x00-\\x19\\x22\\x28\\x29\\x2c\\x2e\\x3a-\\x3c\\x3e\\x40\\x5b-\\x5d\\x7f-\\xff]", self._subject) is None) else
+                           Header(self._subject, "utf-8")
                           )
 
         for name in self.headers: part[name] = self.headers[name]
@@ -254,7 +484,7 @@ Sets the e-mail headers of the given message part.
         """
 python.org: Return the entire formatted message as a string.
 
-:return: (str)
+:return: (str) Formatted message
 :since:  v0.1.00
         """
 
@@ -262,190 +492,25 @@ python.org: Return the entire formatted message as a string.
         return self.message.as_string()
     #
 
-    def is_from_set(self):
-        """
-Returns true if the sender address has been set.
-
-:return: (bool) True if set
-:since: v0.1.00
-        """
-
-        return (self.sender_address != "")
-    #
-
-    def is_recipient_defined(self):
-        """
-Returns true if at least one recipient has been defined.
-
-:return: (bool) True if set
-:since: v0.1.00
-        """
-
-        return (len(self.recipients + self.recipients_bcc + self.recipients_cc) > 0)
-    #
-
-    def is_reply_to_set(self):
-        """
-Returns true if the "Reply-To" address has been set.
-
-:return: (bool) True if set
-:since: v0.1.00
-        """
-
-        return (self.reply_to_address != "")
-    #
-
-    def is_subject_set(self):
-        """
-Returns true if the e-mail subject has been set.
-
-:return: (bool) True if set
-:since: v0.1.00
-        """
-
-        return (self.subject != "")
-    #
-
-    def get_bcc(self):
-        """
-Returns the "BCC" recipient address list.
-
-:return: (list) ASCII e-mail addresses
-:since:  v0.1.00
-        """
-
-        return self.recipients_bcc
-    #
-
-    def _get_body(self):
-        """
-Returns the populated body element.
-
-:return: (mixed) Matching body multipart element; None if unneeded
-:since:  v0.1.00
-        """
-
-        if (len(self.body_list) < 1): raise ValueError("No body has been defined")
-
-        # First handle alternative representations of the body
-        if (len(self.body_list) > 1):
-            body_root = Part(Part.TYPE_MULTIPART, "multipart/alternative")
-            for body_part in self.body_list: body_root.attach(body_part)
-        else: body_root = self.body_list[0]
-
-        # If related attachments are defined we will add them now
-        if (len(self.body_related_list) > 0):
-            _return = Part(Part.TYPE_MULTIPART, "multipart/related")
-            _return.attach(body_root)
-            for related_part in self.body_related_list: _return.attach(related_part)
-        else: _return = body_root
-
-        return _return
-    #
-
-    def get_cc(self):
-        """
-Returns the "CC" recipient address list.
-
-:return: (list) ASCII e-mail addresses
-:since:  v0.1.00
-        """
-
-        return self.recipients_cc
-    #
-
-    def get_from(self):
-        """
-Returns the sender address.
-
-:return: (list) ASCII e-mail address
-:since: v0.1.00
-        """
-
-        return self.sender_address
-    #
-
-    def get_subject(self):
-        """
-Returns the e-mail subject.
-
-:return: (str) e-mail subject
-:since:  v0.1.00
-        """
-
-        return self.subject
-    #
-
-    def get_to(self):
-        """
-Returns the recipient address list.
-
-:return: (list) ASCII e-mail addresses
-:since:  v0.1.00
-        """
-
-        return self.recipients
-    #
-
     def _populate_message(self):
         """
 python.org: Return the entire formatted message as a string.
 
-:return: (str)
-:since:  v0.1.00
+:since: v0.1.00
         """
 
-        if (not self.is_subject_set()): raise ValueError("No subject defined for e-mail")
+        if (not self.is_subject_set): raise ValueError("No subject defined for e-mail")
 
         if (len(self.attachment_list) > 0):
             self.message = Part(Part.TYPE_MULTIPART, "multipart/mixed")
             self._apply_headers(self.message)
             self._add_body_to_multipart(self.message)
         else:
-            self.message = self._get_body()
+            self.message = self._body
             self._apply_headers(self.message)
         #
 
         self._add_attachments_to_multipart(self.message)
-    #
-
-    def set_bcc(self, address):
-        """
-Sets the bcc recipient address.
-
-:param address: ASCII e-mail address
-
-:since: v0.1.00
-        """
-
-        self.recipients_bcc = [ ]
-        self.add_bcc(address)
-    #
-
-    def set_cc(self, address):
-        """
-Sets the cc recipient address.
-
-:param address: ASCII e-mail address
-
-:since: v0.1.00
-        """
-
-        self.recipients_cc = [ ]
-        self.add_cc(address)
-    #
-
-    def set_from(self, address):
-        """
-Sets the sender address.
-
-:param address: ASCII e-mail address
-
-:since: v0.1.00
-        """
-
-        Message.validate_address(address)
-        self.sender_address = address
     #
 
     def set_header(self, name, value):
@@ -463,44 +528,6 @@ Sets a header.
         if (value is None):
             if (name in self.headers): del(self.headers[name])
         elif (name not in self.headers): self.headers[name] = value
-    #
-
-    def set_reply_to(self, address):
-        """
-Sets the "Reply-To" address.
-
-:param address: ASCII e-mail address
-
-:since: v0.1.00
-        """
-
-        Message.validate_address(address)
-        self.reply_to_address = address
-    #
-
-    def set_subject(self, subject):
-        """
-Sets the e-mail subject.
-
-:param subject: e-mail subject
-
-:since: v0.1.00
-        """
-
-        self.subject = subject.strip()
-    #
-
-    def set_to(self, address):
-        """
-Sets the recipient address.
-
-:param address: ASCII e-mail address
-
-:since: v0.1.00
-        """
-
-        self.recipients = [ ]
-        self.add_to(address)
     #
 
     @staticmethod

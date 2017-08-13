@@ -32,7 +32,7 @@ Test basic methods for an ASCII attachment.
         part = Part(Part.TYPE_MESSAGE_BODY, "text/plain", "Hello world")
 
         message = Message()
-        message.set_subject("Test message")
+        message.subject = "Test message"
         message.add_body(part)
 
         self.assertEqual(
@@ -56,7 +56,7 @@ Test basic methods for an ASCII attachment.
         part = Part(Part.TYPE_MESSAGE_BODY, "text/plain", "Hello world")
 
         message = Message()
-        message.set_subject("Test message")
+        message.subject = "Test message"
         message.add_body(part)
 
         part = Part(Part.TYPE_MESSAGE_BODY, "application/xhtml+xml", "<p>This is broken by design</p>")
@@ -94,7 +94,7 @@ Test basic methods for an ASCII attachment.
         part = Part(Part.TYPE_MESSAGE_BODY, "text/plain", "Hello world")
 
         message = Message()
-        message.set_subject("We like German Umlauts to test UTF-8 öäü")
+        message.subject = "We like German Umlauts to test UTF-8 öäü"
         message.add_body(part)
 
         part = Part(Part.TYPE_INLINE, "text/plain", "Hello world", file_name = "test.txt")
