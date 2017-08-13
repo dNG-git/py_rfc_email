@@ -54,7 +54,7 @@ Constructor __init__(Message)
 :param timeout: Connection timeout in seconds
 :param event_handler: EventHandler to use
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         self.attachment_list = [ ]
@@ -339,7 +339,7 @@ Adds an e-mail attachment.
 
 :param part: Message part
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         if ((not isinstance(part, Part))
@@ -360,7 +360,7 @@ Appends previously added attachments to the given message part.
 
 :param part: Message part
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         for attachment_part in self.attachment_list: part.attach(attachment_part)
@@ -372,7 +372,7 @@ Adds the bcc recipient address.
 
 :param address: ASCII e-mail address
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         Message.validate_address(address)
@@ -387,7 +387,7 @@ preferred representation.
 
 :param part: Message part
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         if ((not isinstance(part, Part))
@@ -403,7 +403,7 @@ Adds an e-mail attachment related to the message body.
 
 :param part: Message part
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         if ((not isinstance(part, Part))
@@ -424,7 +424,7 @@ Appends the body to the given message part.
 
 :param part: Message part
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         part.attach(self._body)
@@ -436,7 +436,7 @@ Adds the cc recipient address.
 
 :param address: ASCII e-mail address
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         Message.validate_address(address)
@@ -449,7 +449,7 @@ Adds the recipient address.
 
 :param address: ASCII e-mail address
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         Message.validate_address(address)
@@ -462,7 +462,7 @@ Sets the e-mail headers of the given message part.
 
 :param part: Message part
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         if (self.sender_address != ""): part['From'] = self.sender_address
@@ -485,7 +485,7 @@ Sets the e-mail headers of the given message part.
 python.org: Return the entire formatted message as a string.
 
 :return: (str) Formatted message
-:since:  v0.1.00
+:since:  v0.1.0
         """
 
         self._populate_message()
@@ -496,7 +496,7 @@ python.org: Return the entire formatted message as a string.
         """
 python.org: Return the entire formatted message as a string.
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         if (not self.is_subject_set): raise ValueError("No subject defined for e-mail")
@@ -520,7 +520,7 @@ Sets a header.
 :param name: Header name
 :param value: Header value as string
 
-:since: v0.1.01
+:since: v0.1.1
         """
 
         name = name.upper()
@@ -539,7 +539,7 @@ Formats the given text value and e-mail address to an RFC compliant string.
 :param email: E-Mail address
 
 :return: (str) RFC compliant string
-:since:  v0.1.00
+:since:  v0.1.0
         """
 
         return formataddr(( value, email ))
@@ -549,6 +549,8 @@ Formats the given text value and e-mail address to an RFC compliant string.
     def validate_address(address):
         """
 Validates the e-mail of the given address.
+
+:since: v0.1.0
         """
 
         # global: _PY_STR, _PY_UNICODE_TYPE

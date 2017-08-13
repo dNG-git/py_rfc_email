@@ -42,7 +42,7 @@ This is an e-mail mime part that can be attached to a message.
 :author:    direct Netware Group
 :copyright: (C) direct Netware Group - All rights reserved
 :package:   rfc_email.py
-:since:     v0.1.00
+:since:     v0.1.0
 :license:   https://www.direct-netware.de/redirect?licenses;mpl2
             Mozilla Public License, v. 2.0
     """
@@ -80,7 +80,7 @@ Constructor __init__(Part)
 :param timeout: Connection timeout in seconds
 :param event_handler: EventHandler to use
 
-:since: v0.1.00
+:since: v0.1.0
         """
 
         # global: _PY_BYTES, _PY_BYTES_TYPE, _PY_STR, _PY_UNICODE_TYPE
