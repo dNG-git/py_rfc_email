@@ -523,7 +523,7 @@ Sets a header.
 :since: v0.1.1
         """
 
-        name = name.upper()
+        name = name.lower()
 
         if (value is None):
             if (name in self.headers): del(self.headers[name])
